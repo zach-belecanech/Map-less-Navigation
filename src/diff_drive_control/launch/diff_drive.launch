@@ -1,0 +1,11 @@
+<launch>
+  <!-- Launch the robot controller node -->
+  <node name="diff_drive_controller" pkg="robot_controller" type="controller.py" output="screen"/>
+
+  <!-- Launch RViz with a configuration file -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_controller)/rviz/config.rviz" required="true"/>
+
+  <!-- Add other necessary components here, such as the navigation stack -->
+  <node name="laser_scan_processor" pkg="robot_controller" type="laser_scan_processor.py" output="screen"/>
+  <node name="action_executor" pkg="robot_controller" type="action_executor.py" output="screen"/>
+</launch>
