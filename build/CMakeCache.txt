@@ -325,13 +325,13 @@ GMock_DIR:PATH=GMock_DIR-NOTFOUND
 GTEST_INCLUDE_DIR:PATH=/usr/include
 
 //Path to a library.
-GTEST_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libgtest.a
+GTEST_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/libgtest.a
 
 //Path to a library.
 GTEST_LIBRARY_DEBUG:FILEPATH=GTEST_LIBRARY_DEBUG-NOTFOUND
 
 //Path to a library.
-GTEST_MAIN_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libgtest_main.a
+GTEST_MAIN_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/libgtest_main.a
 
 //Path to a library.
 GTEST_MAIN_LIBRARY_DEBUG:FILEPATH=GTEST_MAIN_LIBRARY_DEBUG-NOTFOUND
@@ -368,13 +368,13 @@ Project_BINARY_DIR:STATIC=/home/belecanechzm/catkin_ws/build
 Project_SOURCE_DIR:STATIC=/home/belecanechzm/catkin_ws/src
 
 //Path to a library.
-RT_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/librt.so
+RT_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/librt.so
 
 //Enable debian style python package layout
 SETUPTOOLS_DEB_LAYOUT:BOOL=ON
 
 //Name of the computer/site where compile is being run
-SITE:STRING=underwoodbt
+SITE:STRING=student3
 
 //LSB Distrib tag
 UBUNTU:BOOL=TRUE
@@ -495,10 +495,10 @@ message_generation_DIR:PATH=/opt/ros/noetic/share/message_generation/cmake
 message_runtime_DIR:PATH=/opt/ros/noetic/share/message_runtime/cmake
 
 //Value Computed by CMake
-navigation_simulation_BINARY_DIR:STATIC=/home/belecanechzm/catkin_ws/build/navigation_simulation
+robot_gym_env_BINARY_DIR:STATIC=/home/belecanechzm/catkin_ws/build/robot_gym_env
 
 //Value Computed by CMake
-navigation_simulation_SOURCE_DIR:STATIC=/home/belecanechzm/catkin_ws/src/navigation_simulation
+robot_gym_env_SOURCE_DIR:STATIC=/home/belecanechzm/catkin_ws/src/robot_gym_env
 
 //The directory containing a CMake configuration file for rosconsole.
 rosconsole_DIR:PATH=/opt/ros/noetic/share/rosconsole/cmake
@@ -538,6 +538,12 @@ std_msgs_DIR:PATH=/opt/ros/noetic/share/std_msgs/cmake
 
 //The directory containing a CMake configuration file for std_srvs.
 std_srvs_DIR:PATH=/opt/ros/noetic/share/std_srvs/cmake
+
+//Value Computed by CMake
+testing_pkg_BINARY_DIR:STATIC=/home/belecanechzm/catkin_ws/build/testing_pkg
+
+//Value Computed by CMake
+testing_pkg_SOURCE_DIR:STATIC=/home/belecanechzm/catkin_ws/src/testing_pkg
 
 //The directory containing a CMake configuration file for tf2.
 tf2_DIR:PATH=/opt/ros/noetic/share/tf2/cmake
@@ -708,7 +714,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=4
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=6
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -748,7 +754,7 @@ CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_STRIP
 CMAKE_STRIP-ADVANCED:INTERNAL=1
 //uname command
-CMAKE_UNAME:INTERNAL=/bin/uname
+CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding PY_em

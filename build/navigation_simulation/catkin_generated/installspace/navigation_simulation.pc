@@ -1,8 +1,0 @@
-prefix=/home/belecanechzm/catkin_ws/install
-
-Name: navigation_simulation
-Description: Description of navigation_simulation
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 

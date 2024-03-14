@@ -1,0 +1,8 @@
+<launch>
+    <node pkg="slam_toolbox" type="async_slam_toolbox_node" name="slam_toolbox" output="screen">
+    <rosparam command="load" file="$(find testing_pkg)/config/mapper_params_online_async.yaml"/>
+    <param name="base_frame" value="base_link"/>
+    <param name="base_frame" value="base_link"/>
+    <!-- other parameters or configurations -->
+    </node>
+</launch>

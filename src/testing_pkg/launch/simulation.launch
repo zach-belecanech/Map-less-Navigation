@@ -1,0 +1,32 @@
+<launch>
+
+    <!-- Set use_sim_time parameter -->
+    <param name="/use_sim_time" value="true"/>
+
+    <param name="robot_description" command="$(find xacro)/xacro '$(find testing_pkg)/urdf/robot.urdf.xacro'" />
+
+    <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+    </node>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find testing_pkg)/robot.rviz" required="true" />
+    
+    <!-- Launch Gazebo with the specified world file -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find testing_pkg)/worlds/test_world_1.world"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+    </include>
+
+    <!-- Static Transform Publisher
+    <node pkg="tf2_ros" type="static_transform_publisher" name="world_to_odom" args="0 0 0 0 0 0 world odom" /> -->
+
+    <!-- Spawn the robot into the gazebo world -->
+    <node name="spawn_robot" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+          args="-param robot_description -urdf -model robot -x 0 -y 0 -z 0.033">
+    </node>
+
+
+</launch>

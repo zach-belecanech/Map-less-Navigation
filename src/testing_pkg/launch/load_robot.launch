@@ -1,0 +1,4 @@
+<launch>
+    <!-- Load the URDF into the robot_description parameter -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find testing_pkg)/urdf/robot.urdf.xacro'"/>
+</launch>

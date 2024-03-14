@@ -1,0 +1,11 @@
+GlobalPlanner:
+  allow_unknown: true  # Allows the planner to plan through unknown space. True means it can navigate through unknown areas to reach a goal.
+  use_dijkstra: true  # Utilizes Dijkstra's algorithm for planning. True means it uses Dijkstra; false might enable A*, depending on other params.
+  use_quadratic: true  # Uses a quadratic approximation for the cost calculation. This can smooth out the path in cost spaces.
+  use_grid_path: false  # When true, the planner produces paths that strictly follow the grid that the costmap uses. When false, paths may be smoother and less constrained by the grid structure.
+  old_navfn_behavior: false  # If true, uses behavior compatible with the older navigation function planner, affecting path planning characteristics.
+  visualize_potential: true  # Enables visualization of the potential field used for path planning. Useful for debugging and visualization in RViz.
+  lethal_cost: 253  # Defines the cost value considered lethal (an obstacle) in the costmap for the path planner. Costs above this are considered impassable.
+  neutral_cost: 50  # The cost value considered neutral or the cost of traversing a cell under normal conditions. This affects the overall cost of the path.
+  cost_factor: 3.0  # A scaling factor applied to the costmap's costs, affecting how the planner perceives and reacts to different cost values.
+  publish_frequency: 0.0  # The frequency at which the planner publishes the plan. A value of 0.0 disables publishing. Useful for reducing bandwidth if the plan doesn't need to be visualized continuously.
