@@ -12,28 +12,22 @@ from gazebo_msgs.srv import SetModelState, SetModelStateRequest
 from gazebo_msgs.msg import ModelState
 from gym.envs.registration import register
 
-
 class RobotGymEnv(gym.Env):
     def __init__(self):
         rospy.init_node('robot_gym_node', anonymous=True)
         
-        self.goal_distance = 0.0  # Initialize goal distance
-        self.goal_angle = 0.0     # Initialize goal angle
+        self.max_steps = 150  # Maximum steps per episode
+        self.current_step = 0  # Current step counter
         
-        # Observation space: laser scan ranges plus distance and angle to the goal
-        num_laser_bins = 720
+        # Observation space: 30 laser scan bins, angle to the goal, distance to the goal
         self.observation_space = spaces.Box(
-            low=np.array([0.0]*num_laser_bins + [0.0, -np.pi]),
-            high=np.array([np.inf]*num_laser_bins + [np.inf, np.pi]),
+            low=np.array([0.0]*30 + [-1.0, 0.0]),
+            high=np.array([1.0]*30 + [1.0, 1.0]),
             dtype=np.float32
         )
 
-        # Action space: linear and angular velocities
-        self.action_space = spaces.Box(
-            low=np.array([-0.5, -1.0]),
-            high=np.array([0.5, 1.0]),
-            dtype=np.float32
-        )
+        # Action space: 7 turning angles, 7 linear velocities
+        self.action_space = spaces.Discrete(49)  # 7 * 7 = 49 possible actions
 
         self.goal_position = self.generate_goal_position()
         self.latest_scan = None  # Placeholder for the latest laser scan data
@@ -48,22 +42,22 @@ class RobotGymEnv(gym.Env):
         rospy.wait_for_service('/gazebo/reset_world')
         self.reset_simulation = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
         self.reset_world = rospy.ServiceProxy('/gazebo/reset_world', Empty)
-        # Wait for the service to reset the world
         rospy.wait_for_service('/gazebo/set_model_state')
         self.set_model_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
-        self.state = None
-
 
     def generate_goal_position(self):
         # Implement logic to generate goal position
-        # This is just an example
         goal_x = np.random.uniform(-10, 10)
         goal_y = np.random.uniform(-10, 10)
         return (goal_x, goal_y)
 
     def scan_callback(self, data):
-        # Preprocess laser scan data
-        self.latest_scan = np.array(data.ranges) / data.range_max  # Normalize distances
+        # Preprocess laser scan data to match the paper's setup
+        scan_ranges = np.array(data.ranges)
+        num_bins = 30
+        bin_size = len(scan_ranges) // num_bins
+        binned_ranges = [min(scan_ranges[i:i + bin_size]) for i in range(0, len(scan_ranges), bin_size)]
+        self.latest_scan = np.array(binned_ranges) / data.range_max  # Normalize distances
 
     def odom_callback(self, msg):
         # Update robot's position and compute goal distance and angle
@@ -77,28 +71,64 @@ class RobotGymEnv(gym.Env):
         goal_x, goal_y = self.goal_position
         robot_x, robot_y = position.x, position.y
         
-        self.goal_distance = np.sqrt((goal_x - robot_x)**2 + (goal_y - robot_y)**2)
+        self.goal_distance = np.sqrt((goal_x - robot_x)**2 + (goal_y - robot_y)**2) / 20.0  # Normalize distance
         goal_angle = np.arctan2(goal_y - robot_y, goal_x - robot_x)
-        self.goal_angle = goal_angle - yaw
+        self.goal_angle = (goal_angle - yaw) / np.pi  # Normalize angle
 
     def step(self, action):
+        # Map discrete action to linear and angular velocities
+        linear_vels = np.linspace(-0.5, 0.5, 7)  # 7 linear velocities from -0.5 to 0.5
+        angular_vels = np.linspace(-1.0, 1.0, 7)  # 7 angular velocities from -1.0 to 1.0
+        linear_vel = linear_vels[action // 7]  # Integer division to get linear velocity index
+        angular_vel = angular_vels[action % 7]  # Modulo to get angular velocity index
+
         # Apply action
         cmd = Twist()
-        cmd.linear.x = action[0]
-        cmd.angular.z = action[1]
+        cmd.linear.x = linear_vel
+        cmd.angular.z = angular_vel
         self.cmd_vel_publisher.publish(cmd)
-        
+
         # Assume a short delay for action execution
         rospy.sleep(0.1)
-        
+
+        # Increment step counter and check for max steps
+        self.current_step += 1
+        done = self.current_step >= self.max_steps
+
         # Assemble state: laser scan + goal distance and angle
-        full_state = np.append(self.state, [self.goal_distance, self.goal_angle])
-        
+        full_state = np.concatenate((self.latest_scan, [self.goal_distance, self.goal_angle]))
+
         # Compute reward and check if goal is reached
-        reward, done = self.compute_reward_and_done()
-        
+        reward, done = self.compute_reward_and_done(done)
+
         return full_state, reward, done, {}
 
+    def compute_reward_and_done(self, done):
+        # Check for collision (laser scan values close to zero)
+        if np.any(self.latest_scan < 0.09):  # Adjust threshold as needed
+            return -50.0, True  # Collision penalty and end episode
+
+        # Check if goal is reached
+        if self.goal_distance < 0.01:  # Adjust threshold as needed
+            return 100.0, True  # Reward and end episode
+
+        # No reward or penalty for other cases
+        return 0.0, done
+
+    def reset(self):
+        # Reset step counter
+        self.current_step = 0
+
+        # Reset goal position
+        self.goal_position = self.generate_goal_position()
+
+        # Reset simulation and robot state
+        self.reset_simulation()  # Resets the simulation
+        self.reset_world()  # Resets the world to its initial state
+
+        # Get initial observation
+        initial_observation = self.get_initial_observation()
+        return initial_observation
 
     def get_initial_observation(self):
         # Wait for fresh sensor data
@@ -106,7 +136,7 @@ class RobotGymEnv(gym.Env):
             rospy.sleep(0.1)  # Wait for callbacks to receive data
 
         # Combine laser scan data and odometry for the initial observation
-        initial_observation = np.concatenate([self.latest_scan, self.latest_odom])
+        initial_observation = np.concatenate([self.latest_scan, [self.goal_distance, self.goal_angle]])
 
         # Reset placeholders for the next reset cycle
         self.latest_scan = None
@@ -114,50 +144,8 @@ class RobotGymEnv(gym.Env):
 
         return initial_observation
 
-
-    def reset(self):
-        # Define the desired initial state
-        model_state = ModelState()
-        model_state.model_name = 'robot'  # Replace with your robot's model name
-        model_state.pose.position.x = 0.0
-        model_state.pose.position.y = 0.0
-        model_state.pose.position.z = 0.0  
-        model_state.pose.orientation.x = 0.0
-        model_state.pose.orientation.y = 0.0
-        model_state.pose.orientation.z = 0.0
-        model_state.pose.orientation.w = 1.0  # Neutral orientation
-
-        # Call the service to set the robot's state
-        try:
-            resp = self.set_model_state(model_state)
-            if not resp.success:
-                rospy.logerr("Failed to set model state in Gazebo: " + resp.status_message)
-        except rospy.ServiceException as e:
-            rospy.logerr("Service call failed: %s" % e)
-
-        try:
-            self.reset_simulation()  # Resets the simulation
-            # self.reset_world()  # Optionally, reset the world to its initial state without affecting the simulation time
-        except rospy.ServiceException as e:
-            print("Service call failed: %s" % e)
-        
-        # Return the initial observation
-        initial_observation = self.get_initial_observation()
-        return initial_observation
-
-
-
-    def compute_reward_and_done(self):
-        # Implement your reward function based on the goal distance, goal angle, and laser data
-        # For simplicity, we'll give a high reward for being close to the goal and penalize based on distance
-        
-        if self.goal_distance < 0.2:  # If within 20 cm of the goal
-            return 100.0, True  # Reward, Done
-        
-        # Penalize based on distance to goal and angle
-        reward = -self.goal_distance - abs(self.goal_angle)
-        return reward, False
-
-
-    
-
+# Register the environment with Gym
+register(
+    id='RobotGym-v0',
+    entry_point='robot_env:RobotGymEnv',
+)

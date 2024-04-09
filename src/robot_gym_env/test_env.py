@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 
-import gym
 import numpy as np
 import time
-import robot_gym_env
+from robot_env import RobotGymEnv
 # Make sure to import your gym environment package correctly
 
 
 def main():
     # Initialize the gym environment
-    env = gym.make('RobotGym-v0')
+    env = RobotGymEnv()
     
     # Reset the environment to get the initial observation
     observation = env.reset()
