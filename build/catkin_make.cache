@@ -1,2 +1,2 @@
-robot_gym_env:testing_pkg
+robot_gym_env:rplidar_ros:testing_pkg
 -DCATKIN_DEVEL_PREFIX=/home/belecanechzm/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/belecanechzm/catkin_ws/install -G Unix Makefiles

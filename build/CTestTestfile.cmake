@@ -6,4 +6,5 @@
 # testing this directory and lists subdirectories to be tested as well.
 subdirs("gtest")
 subdirs("robot_gym_env")
+subdirs("rplidar_ros")
 subdirs("testing_pkg")
