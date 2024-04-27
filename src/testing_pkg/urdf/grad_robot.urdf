@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot name="grad_robot">
+  <joint name="FixedJoint" type="fixed">
+    <origin xyz="-0.1498441 0.0048627 0.0247767" rpy="0. 0. 0."/>
+    <parent link="Root"/>
+    <child link="lidar_link"/>
+  </joint>
+  <joint name="front_left_wheel_joint" type="continuous">
+    <origin xyz="-0.1429297 -0.0783012 -0.0089974" rpy="1.5709046 0 0"/>
+    <parent link="Root"/>
+    <child link="left_wheel_link"/>
+    <axis xyz="0. 0. 1."/>
+    <dynamics damping="0.1"/>
+    <limit velocity="30"/>
+  </joint>
+  <joint name="front_right_wheel_joint" type="continuous">
+    <origin xyz="-0.1429396 0.0820424 -0.0089974" rpy="-1.5707964 0 0 "/>
+    <parent link="Root"/>
+    <child link="right_wheel_link"/>
+    <axis xyz="0. 0. 1."/>
+    <dynamics damping="0.1"/>
+    <limit velocity="30"/>
+  </joint>
+  
+  <joint name="SphericalJoint" type="spherical">
+    <origin xyz="-0.0031061 0.0025399 -0.0186262" rpy="0.0000656 -0.0022597 -0.0000089"/>
+    <parent link="Root"/>
+    <child link="caster_wheel_link"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+  <link name="Root">
+    <visual>
+      <origin xyz="-0.074922 0.0024313 0.0123883" rpy="0. 0. 0."/>
+      <geometry>
+        <box size="0.21 0.16 0.005"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="-0.074922 0.0024313 0.0123883" rpy="0. 0. 0."/>
+      <geometry>
+        <box size="0.21 0.16 0.005"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="15.0"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+  <link name="caster_wheel_link">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <sphere radius="0.025"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <sphere radius="0.025"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="4.0"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+  <link name="left_wheel_link">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <cylinder radius="0.03" length="0.02"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <cylinder radius="0.03" length="0.02"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.5"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+  <link name="lidar_link">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <cylinder radius="0.03" length="0.02"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <cylinder radius="0.03" length="0.02"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="2.0"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+  <link name="right_wheel_link">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="3.14 0. 0."/>
+      <geometry>
+        <cylinder radius="0.03" length="0.02"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="3.14 0. 0."/>
+      <geometry>
+        <cylinder radius="0.03" length="0.02"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.5"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+</robot>

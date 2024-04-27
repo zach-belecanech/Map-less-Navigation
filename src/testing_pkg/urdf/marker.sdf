@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+    <model name="goal_marker">
+        <static>true</static>
+        <link name="link">
+            <visual name="visual">
+                <geometry>
+                    <sphere>
+                        <radius>0.05</radius>  <!-- Small radius for a dot-like appearance -->
+                    </sphere>
+                </geometry>
+                <material>
+                    <ambient>1 0 0 1</ambient>  <!-- Red color -->
+                    <diffuse>1 0 0 1</diffuse>
+                    <specular>1 1 1 1</specular>
+                </material>
+            </visual>
+        </link>
+    </model>
+</sdf>

@@ -67,14 +67,14 @@ set(testing_pkg_CONFIG_INCLUDED TRUE)
 
 # set variables for source/devel/install prefixes
 if("FALSE" STREQUAL "TRUE")
-  set(testing_pkg_SOURCE_PREFIX /home/belecanechzm/catkin_ws/src/testing_pkg)
-  set(testing_pkg_DEVEL_PREFIX /home/belecanechzm/catkin_ws/devel)
+  set(testing_pkg_SOURCE_PREFIX /home/easz/catkin_ws/src/testing_pkg)
+  set(testing_pkg_DEVEL_PREFIX /home/easz/catkin_ws/devel)
   set(testing_pkg_INSTALL_PREFIX "")
   set(testing_pkg_PREFIX ${testing_pkg_DEVEL_PREFIX})
 else()
   set(testing_pkg_SOURCE_PREFIX "")
   set(testing_pkg_DEVEL_PREFIX "")
-  set(testing_pkg_INSTALL_PREFIX /home/belecanechzm/catkin_ws/install)
+  set(testing_pkg_INSTALL_PREFIX /home/easz/catkin_ws/install)
   set(testing_pkg_PREFIX ${testing_pkg_INSTALL_PREFIX})
 endif()
 
@@ -91,9 +91,9 @@ endif()
 # flag project as catkin-based to distinguish if a find_package()-ed project is a catkin project
 set(testing_pkg_FOUND_CATKIN_PROJECT TRUE)
 
-if(NOT " " STREQUAL " ")
+if(NOT "include " STREQUAL " ")
   set(testing_pkg_INCLUDE_DIRS "")
-  set(_include_dirs "")
+  set(_include_dirs "include")
   if(NOT " " STREQUAL " ")
     set(_report "Check the issue tracker '' and consider creating a ticket if the problem has not been reported yet.")
   elseif(NOT " " STREQUAL " ")
@@ -154,7 +154,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/belecanechzm/catkin_ws/install/lib;/home/belecanechzm/catkin_ws/devel/lib;/opt/ros/noetic/lib)
+    foreach(path /home/easz/catkin_ws/install/lib;/home/easz/catkin_ws/devel/lib;/opt/ros/noetic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
@@ -177,7 +177,7 @@ foreach(library ${libraries})
   endif()
 endforeach()
 
-set(testing_pkg_EXPORTED_TARGETS "")
+set(testing_pkg_EXPORTED_TARGETS "testing_pkg_generate_messages_cpp;testing_pkg_generate_messages_eus;testing_pkg_generate_messages_lisp;testing_pkg_generate_messages_nodejs;testing_pkg_generate_messages_py")
 # create dummy targets for exported code generation targets to make life of users easier
 foreach(t ${testing_pkg_EXPORTED_TARGETS})
   if(NOT TARGET ${t})
@@ -214,7 +214,7 @@ foreach(depend ${depends})
   _list_append_deduplicate(testing_pkg_EXPORTED_TARGETS ${${testing_pkg_dep}_EXPORTED_TARGETS})
 endforeach()
 
-set(pkg_cfg_extras "")
+set(pkg_cfg_extras "testing_pkg-msg-extras.cmake")
 foreach(extra ${pkg_cfg_extras})
   if(NOT IS_ABSOLUTE ${extra})
     set(extra ${testing_pkg_DIR}/${extra})

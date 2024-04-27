@@ -1,0 +1,10 @@
+(cl:defpackage testing_pkg-srv
+  (:use )
+  (:export
+   "RESETENVIRONMENT"
+   "<RESETENVIRONMENT-REQUEST>"
+   "RESETENVIRONMENT-REQUEST"
+   "<RESETENVIRONMENT-RESPONSE>"
+   "RESETENVIRONMENT-RESPONSE"
+  ))
+

@@ -1,8 +1,8 @@
-prefix=/home/belecanechzm/catkin_ws/devel
+prefix=/home/easz/catkin_ws/devel
 
 Name: testing_pkg
 Description: Description of testing_pkg
 Version: 0.0.0
-Cflags: 
+Cflags: -I/home/easz/catkin_ws/devel/include
 Libs: -L${prefix}/lib 
 Requires: 
