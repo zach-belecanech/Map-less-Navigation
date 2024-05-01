@@ -8,15 +8,15 @@
     <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui"/>
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
     </node> -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find testing_pkg)/robot.rviz" required="true" />
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find testing_pkg)/robot.rviz" required="true" /> -->
     
     <!-- Launch Gazebo with the specified world file -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(find testing_pkg)/worlds/custom_rooms_world.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
-        <arg name="gui" value="true"/>
-        <arg name="headless" value="false"/>
+        <arg name="gui" value="false"/>
+        <arg name="headless" value="true"/>
         <arg name="debug" value="false"/>
     </include>
 

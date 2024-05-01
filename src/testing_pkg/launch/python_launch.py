@@ -78,7 +78,6 @@ def spawn_model(model_name, model_path, x, y, z, namespace):
                 envs[namespace]['boxes'].append({'name': model_name})
             else:
                 envs[namespace] = {'boxes': {'name': model_name}}
-            print(f"Model {model_name} spawned successfully in {namespace}.")
         else:
             print(f"Failed to spawn model {model_name} in {namespace}.")
         return resp.success
@@ -89,16 +88,16 @@ def spawn_model(model_name, model_path, x, y, z, namespace):
 
 def spawn_urdf_model(model_name, urdf_path, x, y, z, namespace=''):
     rospy.wait_for_service('/gazebo/spawn_urdf_model')
-    print('You  I found the service lolw')
+    
     try:
         spawn_service = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
         
         # Load and process the URDF file using xacro
         # Make sure this path is correct
         robot_description = xacro.process_file(urdf_path, mappings={'ns': namespace})
-        print('got the description')
+        
         model_xml = robot_description.toxml()
-        print('got the xml lol')
+        
         pose = Pose()
         pose.position.x = float(x)
         pose.position.y = float(y)
@@ -109,7 +108,7 @@ def spawn_urdf_model(model_name, urdf_path, x, y, z, namespace=''):
         print('spawned in that shit vro')
         if resp.success:
             # Set the robot_description parameter in the namespace and launch the node
-            print('bout to launch da nodes')
+            
             launch = launch_robot_nodes(namespace, model_xml)
             return launch, resp.success
     except rospy.ServiceException as e:
@@ -117,7 +116,7 @@ def spawn_urdf_model(model_name, urdf_path, x, y, z, namespace=''):
 
 def launch_robot_nodes(namespace, robot_description):
     """Launch robot_state_publisher and joint_state_publisher nodes."""
-    print('Made it to the nodes bro')
+    
     uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
     roslaunch.configure_logging(uuid)
     launch = roslaunch.scriptapi.ROSLaunch()
@@ -147,7 +146,6 @@ def main():
     # Spawning robots
     #robot_positions = [(0, 0), (0, 6), (6, 0), (6, 6), (12, 0), (12, 6), (18, 0), (18, 6), (24, 0), (24, 6)]
     for i, (x, y) in enumerate(robot_positions, start=1):
-        print("yo im in the loop")
         namespace = f'robot{i}'
         # Initialize the environment entry with center and empty box list
         envs[namespace] = {'boxes': []}
@@ -158,6 +156,7 @@ def main():
             box_x = x + 1  # Adjusted for a little offset
             box_y = y - 1.5 + 0.3 * j  # Calculate the y position for each box
             spawn_model(f'box{j}_robot{i}', box_model_path, box_x, box_y, 0, namespace)
+
     
     try:
         rospy.spin()
