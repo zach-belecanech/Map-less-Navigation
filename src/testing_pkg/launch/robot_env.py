@@ -20,12 +20,13 @@ from python_launch import reset_environment
 from globals import environments
 
 class RobotGymEnv(gym.Env):
-    def __init__(self, namespace='robot1'):
+    def __init__(self, namespace='robot1', center_pos=(0,0)):
         rospy.init_node(f'{namespace}_gym_node', anonymous=True)
         
         self.namespace = namespace
         self.max_steps = 500
         self.current_step = 0
+        self.center = center_pos
         
         self.observation_space = spaces.Box(
             low=np.array([0.0]*30 + [-1.0, 0.0]),

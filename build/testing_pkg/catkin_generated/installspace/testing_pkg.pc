@@ -1,4 +1,4 @@
-prefix=/home/easz/catkin_ws/install
+prefix=/home/belecanechzm/Map-less-Navigation/install
 
 Name: testing_pkg
 Description: Description of testing_pkg

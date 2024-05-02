@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "/home/easz/catkin_ws/devel/share/common-lisp/ros/testing_pkg/srv/ResetEnvironment.lisp"
+  "/home/belecanechzm/Map-less-Navigation/devel/share/common-lisp/ros/testing_pkg/srv/ResetEnvironment.lisp"
   "CMakeFiles/testing_pkg_generate_messages_lisp"
 )
 

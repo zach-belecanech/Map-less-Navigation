@@ -7,4 +7,10 @@
 # new environment variables
 
 # modified environment variables
-export PWD='/home/easz/catkin_ws/build'
+export CMAKE_PREFIX_PATH="/home/belecanechzm/Map-less-Navigation/devel:$CMAKE_PREFIX_PATH"
+export LD_LIBRARY_PATH="/home/belecanechzm/Map-less-Navigation/devel/lib:$LD_LIBRARY_PATH"
+export PKG_CONFIG_PATH="/home/belecanechzm/Map-less-Navigation/devel/lib/pkgconfig:$PKG_CONFIG_PATH"
+export PWD='/home/belecanechzm/Map-less-Navigation/build'
+export PYTHONPATH="/home/belecanechzm/Map-less-Navigation/devel/lib/python3/dist-packages:$PYTHONPATH"
+export ROSLISP_PACKAGE_DIRECTORIES='/home/belecanechzm/Map-less-Navigation/devel/share/common-lisp'
+export ROS_PACKAGE_PATH="/home/easz/catkin_ws/src:/home/belecanechzm/Map-less-Navigation/src:$ROS_PACKAGE_PATH"

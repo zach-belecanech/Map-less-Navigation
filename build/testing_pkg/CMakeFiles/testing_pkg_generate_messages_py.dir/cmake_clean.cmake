@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/easz/catkin_ws/devel/lib/python3/dist-packages/testing_pkg/srv/_ResetEnvironment.py"
-  "/home/easz/catkin_ws/devel/lib/python3/dist-packages/testing_pkg/srv/__init__.py"
+  "/home/belecanechzm/Map-less-Navigation/devel/lib/python3/dist-packages/testing_pkg/srv/_ResetEnvironment.py"
+  "/home/belecanechzm/Map-less-Navigation/devel/lib/python3/dist-packages/testing_pkg/srv/__init__.py"
   "CMakeFiles/testing_pkg_generate_messages_py"
 )
 

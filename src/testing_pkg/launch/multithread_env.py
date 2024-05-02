@@ -33,16 +33,19 @@ class RobotGymEnv(gym.Env):
             dtype=np.float32
         )
 
-        print("Input shape needed: ", self.observation_space.shape)
 
-        self.action_space = spaces.Discrete(49)  # 7 * 7 possible actions
+        self.action_space = spaces.Box(
+            low=np.array([-1.0, 0.0]),  # Min angle, min velocity
+            high=np.array([1.0, 1.5]),  # Max angle, max velocity
+            dtype=np.float32
+        )
 
         
         self.latest_scan = None
         self.latest_odom = None
         self.goal_distance = 0.0
         self.goal_angle = 0.0
-        self.spawn_goal_marker((0,-1))
+        #self.spawn_goal_marker((0,-1))
         self.goal_position = self.generate_goal_position()
 
         # ROS Publishers and Subscribers with namespace
@@ -83,7 +86,7 @@ class RobotGymEnv(gym.Env):
         
         max_attempts = 1000
         for _ in range(max_attempts):
-            print('Generating a goal position...')
+            #print('Generating a goal position...')
             # Generate a random angle and radius within 4.5 meters
             angle = random.uniform(0, 2 * math.pi)
             radius = random.uniform(0, 2.0)
@@ -131,16 +134,10 @@ class RobotGymEnv(gym.Env):
         self.goal_angle = (goal_angle - yaw) / np.pi  # Normalize angle
 
     def step(self, action):
-        # Map discrete action to linear and angular velocities
-        linear_vels = np.linspace(-1.0, 1.0, 7)  # 7 linear velocities from -0.5 to 0.5
-        angular_vels = np.linspace(-1.0, 1.0, 7)  # 7 angular velocities from -1.0 to 1.0
-        linear_vel = linear_vels[action // 7]  # Integer division to get linear velocity index
-        angular_vel = angular_vels[action % 7]  # Modulo to get angular velocity index
-
         # Apply action
         cmd = Twist()
-        cmd.linear.x = linear_vel
-        cmd.angular.z = angular_vel
+        cmd.linear.x = action[1]
+        cmd.angular.z = action[0]
         self.cmd_vel_publisher.publish(cmd)
 
         # Assume a short delay for action execution
@@ -185,7 +182,7 @@ class RobotGymEnv(gym.Env):
         rospy.sleep(0.1)
         # Get initial observation
         self.goal_position = self.generate_goal_position()
-        self.move_goal_marker(self.goal_position)
+       #self.move_goal_marker(self.goal_position)
         initial_observation = self.get_initial_observation()
         
         return initial_observation
@@ -209,46 +206,46 @@ class RobotGymEnv(gym.Env):
     def get_namespace(self):
         return self.namespace
     
-    def spawn_goal_marker(self, position):
-        # Ensure the service is available
-        rospy.wait_for_service('/gazebo/spawn_sdf_model')
-        try:
-            spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
-            with open("/home/easz/catkin_ws/src/testing_pkg/urdf/marker.sdf", 'r') as file:
-                goal_sdf = file.read()
+    # def spawn_goal_marker(self, position):
+    #     # Ensure the service is available
+    #     rospy.wait_for_service('/gazebo/spawn_sdf_model')
+    #     try:
+    #         spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
+    #         with open("/home/easz/catkin_ws/src/testing_pkg/urdf/marker.sdf", 'r') as file:
+    #             goal_sdf = file.read()
 
-            pose = Pose()
-            pose.position.x = position[0]
-            pose.position.y = position[1]
-            pose.position.z = 0.01  # slightly above the ground to ensure visibility
+    #         pose = Pose()
+    #         pose.position.x = position[0]
+    #         pose.position.y = position[1]
+    #         pose.position.z = 0.01  # slightly above the ground to ensure visibility
 
-            # Spawn the model
-            spawn_model(f"goal_marker_{self.namespace}", goal_sdf, "", pose, "world")
-        except rospy.ServiceException as e:
-            rospy.logerr("Model spawn service call failed: %s", e)
+    #         # Spawn the model
+    #         spawn_model(f"goal_marker_{self.namespace}", goal_sdf, "", pose, "world")
+    #     except rospy.ServiceException as e:
+    #         rospy.logerr("Model spawn service call failed: %s", e)
 
-    def move_goal_marker(self, position):
-        # Move the existing marker to a new position
-        rospy.wait_for_service('/gazebo/set_model_state')
-        try:
-            set_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
-            state = ModelState()
-            state.model_name = f"goal_marker_{self.namespace}"
-            state.pose.position.x = position[0]
-            state.pose.position.y = position[1]
-            state.pose.position.z = 0.01
-            set_state(state)
-        except rospy.ServiceException as e:
-            rospy.logerr("Model set state service call failed: %s", e)
+    # def move_goal_marker(self, position):
+    #     # Move the existing marker to a new position
+    #     rospy.wait_for_service('/gazebo/set_model_state')
+    #     try:
+    #         set_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+    #         state = ModelState()
+    #         state.model_name = f"goal_marker_{self.namespace}"
+    #         state.pose.position.x = position[0]
+    #         state.pose.position.y = position[1]
+    #         state.pose.position.z = 0.01
+    #         set_state(state)
+    #     except rospy.ServiceException as e:
+    #         rospy.logerr("Model set state service call failed: %s", e)
 
-    def delete_goal_marker(self):
-        # Delete the marker if needed
-        rospy.wait_for_service('/gazebo/delete_model')
-        try:
-            delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
-            delete_model(f"goal_marker_{self.namespace}")
-        except rospy.ServiceException as e:
-            rospy.logerr("Model delete service call failed: %s", e)
+    # def delete_goal_marker(self):
+    #     # Delete the marker if needed
+    #     rospy.wait_for_service('/gazebo/delete_model')
+    #     try:
+    #         delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
+    #         delete_model(f"goal_marker_{self.namespace}")
+    #     except rospy.ServiceException as e:
+    #         rospy.logerr("Model delete service call failed: %s", e)
 
     def angle_to_quaternion(self,yaw):
         """Convert a yaw angle (in radians) to a quaternion."""
@@ -311,14 +308,14 @@ class RobotGymEnv(gym.Env):
                 return False
         rospy.loginfo("Successfully reset environment for %s", namespace)
 
-        goal_state = ModelState()
-        goal_state.model_name = f"goal_marker_{self.namespace}"
-        goal_state.pose.position.x = self.goal_position[0]
-        goal_state.pose.position.y = self.goal_position[1]
-        goal_state.pose.position.z = 0.01
-        goal_rsp = set_state(goal_state)
-        if not box_resp.success:
-                rospy.logerr("Failed to reset position for goal object %s", goal_state.model_name)
+        # goal_state = ModelState()
+        # goal_state.model_name = f"goal_marker_{self.namespace}"
+        # goal_state.pose.position.x = self.goal_position[0]
+        # goal_state.pose.position.y = self.goal_position[1]
+        # goal_state.pose.position.z = 0.01
+        # goal_rsp = set_state(goal_state)
+        # if not box_resp.success:
+        #         rospy.logerr("Failed to reset position for goal object %s", goal_state.model_name)
         return True
         
 

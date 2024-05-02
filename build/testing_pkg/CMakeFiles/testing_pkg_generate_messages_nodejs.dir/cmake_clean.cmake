@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "/home/easz/catkin_ws/devel/share/gennodejs/ros/testing_pkg/srv/ResetEnvironment.js"
+  "/home/belecanechzm/Map-less-Navigation/devel/share/gennodejs/ros/testing_pkg/srv/ResetEnvironment.js"
   "CMakeFiles/testing_pkg_generate_messages_nodejs"
 )
 

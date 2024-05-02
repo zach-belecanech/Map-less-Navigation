@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/easz/catkin_ws/devel/share/roseus/ros/testing_pkg/manifest.l"
-  "/home/easz/catkin_ws/devel/share/roseus/ros/testing_pkg/srv/ResetEnvironment.l"
+  "/home/belecanechzm/Map-less-Navigation/devel/share/roseus/ros/testing_pkg/manifest.l"
+  "/home/belecanechzm/Map-less-Navigation/devel/share/roseus/ros/testing_pkg/srv/ResetEnvironment.l"
   "CMakeFiles/testing_pkg_generate_messages_eus"
 )
 

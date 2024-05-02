@@ -140,8 +140,8 @@ def main():
         y = (i // grid_size) * room_distance
         robot_positions.append((x,y))
     # Define paths and constants
-    robot_description_path = '/home/easz/catkin_ws/src/testing_pkg/urdf/newRobot.urdf.xacro'
-    box_model_path = os.path.join(os.getenv('ROS_PACKAGE_PATH').split(':')[0], 'testing_pkg', 'worlds', 'box.sdf')
+    robot_description_path = '/home/belecanechzm/Map-less-Navigation/src/testing_pkg/urdf/newRobot.urdf.xacro'
+    box_model_path = '/home/belecanechzm/Map-less-Navigation/src/testing_pkg/worlds/box.sdf'
 
     # Spawning robots
     #robot_positions = [(0, 0), (0, 6), (6, 0), (6, 6), (12, 0), (12, 6), (18, 0), (18, 6), (24, 0), (24, 6)]

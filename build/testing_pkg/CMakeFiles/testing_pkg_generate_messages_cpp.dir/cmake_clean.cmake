@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "/home/easz/catkin_ws/devel/include/testing_pkg/ResetEnvironment.h"
+  "/home/belecanechzm/Map-less-Navigation/devel/include/testing_pkg/ResetEnvironment.h"
   "CMakeFiles/testing_pkg_generate_messages_cpp"
 )
 

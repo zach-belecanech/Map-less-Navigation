@@ -1,2 +1,2 @@
 testing_pkg
--DCATKIN_DEVEL_PREFIX=/home/easz/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/easz/catkin_ws/install -G Unix Makefiles
+-DCATKIN_DEVEL_PREFIX=/home/belecanechzm/Map-less-Navigation/devel -DCMAKE_INSTALL_PREFIX=/home/belecanechzm/Map-less-Navigation/install -G Unix Makefiles
