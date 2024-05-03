@@ -129,7 +129,7 @@ class RobotGymEnv(gym.Env):
         goal_x, goal_y = self.goal_position
         robot_x, robot_y = position.x, position.y
         
-        self.goal_distance = np.sqrt((goal_x - robot_x)**2 + (goal_y - robot_y)**2) / 20.0  # Normalize distance
+        self.goal_distance = np.sqrt((goal_x - robot_x)**2 + (goal_y - robot_y)**2) / 7.07  # Normalize distance
         goal_angle = np.arctan2(goal_y - robot_y, goal_x - robot_x)
         self.goal_angle = (goal_angle - yaw) / np.pi  # Normalize angle
 
@@ -158,18 +158,25 @@ class RobotGymEnv(gym.Env):
         return full_state, reward, done, {}
 
     def compute_reward_and_done(self, done):
-        # Check for collision (laser scan values close to zero)
-        
-        
-        if np.any(self.latest_scan < 0.015):  # Adjust threshold as needed
-            return -50.0, True  # Collision penalty and end episode
+        # Base collision penalty and goal reward
+        collision_penalty = -50.0
+        goal_reward = 100.0
+
+        # Adjust collision penalty based on proximity to the goal
+        # Closer to the goal means a less severe penalty
+        if np.any(self.latest_scan < 0.015):  # Threshold for collision detection
+            proximity_reward = (1 - self.goal_distance) * 30  # Scale factor can be adjusted
+            return collision_penalty + proximity_reward, True
 
         # Check if goal is reached
-        if self.goal_distance < 0.03:  # Adjust threshold as needed
-            return 100.0, True  # Reward and end episode
+        if self.goal_distance < 0.03:  # Threshold to consider goal reached
+            return goal_reward, True
 
-        # No reward or penalty for other cases
-        return 0.0, done
+        # Proportional reward for getting closer to the goal
+        # This uses an inverse function to give higher rewards for being closer to the goal
+        proximity_reward = (1 - self.goal_distance) * 10  # Scale factor can be adjusted
+        return proximity_reward, done
+
 
     def reset(self):
         # Reset step counter

@@ -131,7 +131,7 @@ def launch_robot_nodes(namespace, robot_description):
 def main():
     rospy.init_node('gazebo_model_spawner', anonymous=True)
 
-    num_rooms = 16
+    num_rooms = 200
     room_distance = 6
     robot_positions = []
     grid_size = int(math.ceil(math.sqrt(num_rooms)))  # Calculate the grid size

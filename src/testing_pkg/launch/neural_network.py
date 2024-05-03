@@ -15,7 +15,7 @@ import random
 import os
 import datetime
 
-log_dir = "/home/belecanechzm/tensor_logs/log_10"
+log_dir = "/home/belecanechzm/tensor_logs/log_12"
 summary_writer = tf.summary.create_file_writer(log_dir)
 
 class ExperienceBuffer:
@@ -25,10 +25,11 @@ class ExperienceBuffer:
         self.lock = threading.Lock()
 
     def add(self, experience):
+        state, action, reward, next_state, done = experience
         with self.lock:
             if len(self.buffer) >= self.capacity:
                 self.buffer.pop(0)
-            self.buffer.append(experience)
+            self.buffer.append((state.flatten(), action, reward, next_state.flatten(), done))
 
     def get_dataset(self, batch_size):
         with self.lock:
@@ -37,9 +38,12 @@ class ExperienceBuffer:
 
             # Convert each list to a tensor
             states = tf.convert_to_tensor(states, dtype=tf.float32)
+            states = tf.reshape(states, (-1, 1, 32)) 
+
             actions = tf.convert_to_tensor(actions, dtype=tf.int32)  # Ensure your actions are compatible with tf.int32
             rewards = tf.convert_to_tensor(rewards, dtype=tf.float32)
             next_states = tf.convert_to_tensor(next_states, dtype=tf.float32)
+            next_states = tf.reshape(next_states, (-1, 1, 32))
             dones = tf.convert_to_tensor(dones, dtype=tf.bool)
 
             # Create a dataset from tensors
@@ -81,7 +85,7 @@ class ActorCriticNetwork(tf.keras.Model):
             x = layer(x)
 
         # Actor output
-        lstm_output = self.lstm(tf.expand_dims(x, axis=1))  # LSTM expects time sequence data
+        lstm_output = self.lstm(x)  # LSTM expects time sequence data
         turning_probs = self.actor_turning(lstm_output)
         velocity_probs = self.actor_velocity(lstm_output)
 
@@ -103,7 +107,8 @@ class ActorCriticNetwork(tf.keras.Model):
         log_probs = log_probs_turning + log_probs_velocity
 
         # Compute the discounted rewards and advantages
-        returns = rewards + gamma * next_values * (1 - dones)
+        dones_float = tf.cast(dones, tf.float32)
+        returns = rewards + gamma * next_values * (1 - dones_float)
         advantages = returns - values
 
         # Actor loss
@@ -118,7 +123,7 @@ class ActorCriticNetwork(tf.keras.Model):
         entropy_loss = entropy_turning + entropy_velocity
 
         # Total loss
-        total_loss = actor_loss + critic_loss - 0.01 * entropy_loss  # You can adjust the weight of the entropy term
+        total_loss = actor_loss + critic_loss - (0.001 * entropy_loss)  # You can adjust the weight of the entropy term
 
         return total_loss
 
@@ -140,7 +145,8 @@ def train_thread(model, namespace, center, num_episodes, experience_buffer, writ
     for episode in range(num_episodes):
         try:
             state = env.reset()
-            state = np.reshape(state, [1, -1])
+            
+            state = np.reshape(state, [1, 1, -1])
             done = False
             total_reward = 0
             steps = 0
@@ -159,7 +165,7 @@ def train_thread(model, namespace, center, num_episodes, experience_buffer, writ
                 #print(f'Taking a step on thread: {thread_id}')
                 next_state, reward, done, _ = env.step(action)
                 #print(f'Took the step on thread: {thread_id}')
-                next_state = np.reshape(next_state, [1, env.observation_space.shape[0]])
+                next_state = np.reshape(next_state, [1, 1, env.observation_space.shape[0]])
                 #print(f'Getting the lock for experience buffer on thread: {thread_id}')
                 with lock:
                    # print(f'Got the lock yurrrrr (experience buffer lock) thread: {thread_id}')
@@ -180,18 +186,25 @@ def train_thread(model, namespace, center, num_episodes, experience_buffer, writ
 def learn_from_buffer(model, experience_buffer, batch_size, optimizer, lock, total_steps, writer):
     print("entered the buffer bitch\n")
     current_step = 0
+    initial_learning_rate = 0.007
+    final_learning_rate = 0.001
+    decay_steps = 19200000
+
     while current_step < total_steps:
-        print(f"Current buffer size: {len(experience_buffer.buffer)}")
+        # Compute the current learning rate
+        learning_rate = initial_learning_rate - (current_step * (initial_learning_rate - final_learning_rate) / decay_steps)
+        learning_rate = max(learning_rate, final_learning_rate)  # Ensures it does not go below the final learning rate
+        optimizer.learning_rate.assign(learning_rate) 
+
         if len(experience_buffer.buffer) >= batch_size:
-            print('We getting some data in this mf on the learning thread')
             dataset = experience_buffer.get_dataset(batch_size)
-            print('We have got the dataset on the learning thread')
             for (states, actions, rewards, next_states, dones) in dataset:
                 actions_turning = np.array([action[0] for action in actions])
                 actions_velocity = np.array([action[1] for action in actions])
-                print('Aquring lock on learning thread')
+                
+                #print('Aquring lock on learning thread')
                 with lock:
-                    print('Got the lock on learning thread')
+                    #print('Got the lock on learning thread')
                     with tf.GradientTape() as tape:
                         turning_probs, velocity_probs, values = model(states)
                         next_turning_probs, next_velocity_probs, next_values = model(next_states)
@@ -211,7 +224,7 @@ def learn_from_buffer(model, experience_buffer, batch_size, optimizer, lock, tot
 
                     valid_grads_vars = [(g, v) for g, v in zip(grads, model.trainable_variables) if g is not None]
                     optimizer.apply_gradients(valid_grads_vars)
-                print('done with lock on learning thread')
+                #print('done with lock on learning thread')
 
                 with writer.as_default():
                     tf.summary.scalar("Loss", loss, step=current_step)
@@ -231,20 +244,12 @@ def learn_from_buffer(model, experience_buffer, batch_size, optimizer, lock, tot
 
         time.sleep(0.1)
 
-initial_learning_rate = 0.005
-final_learning_rate = 0.001
-decay_steps = 8000000  # Total number of steps over which the learning rate will decay
-
-def get_learning_rate(current_step):
-    if current_step < decay_steps:
-        return initial_learning_rate - (current_step * (initial_learning_rate - final_learning_rate) / decay_steps)
-    return final_learning_rate
 
 def main():
     print('Started\n')
     rospy.init_node('robot_gym_node', anonymous=True)
     num_episodes = 500
-    num_rooms = 16
+    num_rooms = 200
     room_distance = 6
     robots = []
     center_pos = []
@@ -263,7 +268,7 @@ def main():
     print('Started model')
     experience_buffer = ExperienceBuffer(100000)
     lock = Lock()
-    optimizer = tf.keras.optimizers.RMSprop(learning_rate=0.005, decay=0.99, epsilon=0.00005)
+    optimizer = tf.keras.optimizers.RMSprop(learning_rate=0.007, decay=0.99, epsilon=0.00005)
     
 
     collection_threads = [
@@ -271,7 +276,7 @@ def main():
         for i, (namespace, center) in enumerate(zip(robots, center_pos))
     ]
 
-    learning_thread = Thread(target=learn_from_buffer, args=(shared_model, experience_buffer, 128, optimizer, lock, total_steps, summary_writer))
+    learning_thread = Thread(target=learn_from_buffer, args=(shared_model, experience_buffer, 256, optimizer, lock, total_steps, summary_writer))
 
     learning_thread.start()
     for thread in collection_threads:

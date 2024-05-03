@@ -37,9 +37,39 @@ def generate_room(x_origin, y_origin, room_id):
     walls.append(generate_wall(x_origin - room_width/2, y_origin, room_height, 1, f"{room_id}_west", "0 0 1.5707"))
     return "\n".join(walls)
 
+
+def generate_box(x, y, box_num, robot_name):
+    return f"""
+    <model name='box{box_num}_{robot_name}'>
+        <static>true</static>
+        <pose>{x} {y} 0 0 0 0</pose>
+        <link name='link'>
+            <collision name='collision'>
+                <geometry>
+                    <box><size>0.5 0.5 0.5</size></box>
+                </geometry>
+            </collision>
+            <visual name='visual'>
+                <geometry>
+                    <box><size>0.5 0.5 0.5</size></box>
+                </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Red</name>
+                    </script>
+                </material>
+            </visual>
+        </link>
+    </model>
+    """
+
+
 def main():
-    num_rooms = 16  # Specify the number of rooms you want to generate
+    num_rooms = 200  # Specify the number of rooms you want to generate
     room_distance = 6  # Distance between the centers of two rooms
+    robot_urdf_path = "/home/belecanechzm/Map-less-Navigation/src/testing_pkg/urdf/newRobot.urdf.xacro"
+
     sdf_header = f"""
     <sdf version='1.7'>
         <world name='default'>
@@ -79,15 +109,19 @@ def main():
     </sdf>
     """
     rooms = []
+    boxes = []
     grid_size = int(math.ceil(math.sqrt(num_rooms)))  # Calculate the grid size
     for i in range(num_rooms):
         x = (i % grid_size) * room_distance
         y = (i // grid_size) * room_distance
         rooms.append(generate_room(x, y, i))
+
     
-    sdf_content = f"{sdf_header}{''.join(rooms)}{sdf_footer}"
+
     
-    with open("/home/easz/catkin_ws/src/testing_pkg/worlds/custom_rooms_world.world", "w") as f:
+    sdf_content = f"{sdf_header}{''.join(rooms)}{''.join(boxes)}{sdf_footer}"
+    
+    with open("/home/belecanechzm/Map-less-Navigation/src/testing_pkg/worlds/custom_rooms_world.world", "w") as f:
         f.write(sdf_content)
 
 if __name__ == "__main__":
